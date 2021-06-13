@@ -1,23 +1,22 @@
-import logo from './logo.svg';
-import './App.css';
+import { useSubscriber } from "./UIEventsContext";
+import BattlefieldTable from "./BattlefieldTable";
 
-function App() {
+function App(props) {
+  const subscriber = useSubscriber();
+  const handleEnemyCellClick = (cellValue, i, j) => {
+    subscriber.next({ type: "enemy_cell_click", cellValue, i, j });
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <section>
+        <h2>Your ships</h2>
+        <BattlefieldTable size="s" values={props.you} />
+      </section>
+      <section>
+        <h2>Enemy ships</h2>
+        <BattlefieldTable size="m" values={props.enemy} interactive onCellClick={handleEnemyCellClick} />
+      </section>
     </div>
   );
 }
