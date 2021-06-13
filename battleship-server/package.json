@@ -1,0 +1,17 @@
+{
+  "name": "battleship-server",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-recommended": "^4.1.0",
+    "nodemon": "^2.0.7",
+    "prettier": "^2.3.1"
+  }
+}
