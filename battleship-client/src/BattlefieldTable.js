@@ -1,5 +1,5 @@
 import cx from "classnames";
-import { EMPTY_HIT, SHIP, SHIP_HIT } from "battleship-core";
+import { EMPTY_HIT, SHIP, SHIP_HIT, SHIP_KILLED } from "battleship-core";
 import "./BattlefieldTable.css";
 
 function BattlefieldTable(props) {
@@ -19,8 +19,14 @@ function BattlefieldTable(props) {
               key={j}
               className={cx(
                 "BattlefieldTable-Cell",
-                { "BattlefieldTable-Cell_ship": cellValue === SHIP || cellValue === SHIP_HIT },
-                { "BattlefieldTable-Cell_hit": cellValue === EMPTY_HIT || cellValue === SHIP_HIT }
+                {
+                  "BattlefieldTable-Cell_ship":
+                    cellValue === SHIP || cellValue === SHIP_HIT || cellValue === SHIP_KILLED,
+                },
+                {
+                  "BattlefieldTable-Cell_hit": cellValue === EMPTY_HIT || cellValue === SHIP_HIT,
+                },
+                { "BattlefieldTable-Cell_killed": cellValue === SHIP_KILLED }
               )}
               onClick={
                 props.onCellClick &&

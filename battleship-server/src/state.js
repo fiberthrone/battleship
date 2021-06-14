@@ -1,18 +1,7 @@
-const { getTableOutOfArrangementsAndHits, hitVersionOfCellValue } = require("battleship-core");
+const { getTableOutOfArrangementsAndHits, EMPTY_HIT, SHIP_HIT, SHIP_KILLED } = require("battleship-core");
 
-function createDefaultShipArrangement() {
-  return [
-    { from: { i: 0, j: 0 }, to: { i: 0, j: 3 } },
-    { from: { i: 2, j: 0 }, to: { i: 2, j: 2 } },
-    { from: { i: 2, j: 4 }, to: { i: 2, j: 6 } },
-    { from: { i: 4, j: 0 }, to: { i: 4, j: 1 } },
-    { from: { i: 4, j: 3 }, to: { i: 4, j: 4 } },
-    { from: { i: 4, j: 6 }, to: { i: 4, j: 7 } },
-    { from: { i: 6, j: 0 }, to: { i: 6, j: 0 } },
-    { from: { i: 6, j: 2 }, to: { i: 6, j: 2 } },
-    { from: { i: 6, j: 4 }, to: { i: 6, j: 4 } },
-    { from: { i: 6, j: 6 }, to: { i: 6, j: 6 } },
-  ];
+function isHitOrKilled(cellValue) {
+  return cellValue === EMPTY_HIT || cellValue === SHIP_HIT || cellValue === SHIP_KILLED;
 }
 
 function enemyOf(player) {
@@ -27,11 +16,11 @@ module.exports.createInitialState = function createInitialState() {
   return {
     currentTurn: "player1",
     player1: {
-      ships: createDefaultShipArrangement(),
+      ships: null,
       hits: [],
     },
     player2: {
-      ships: createDefaultShipArrangement(),
+      ships: null,
       hits: [],
     },
   };
@@ -56,16 +45,36 @@ module.exports.reducer = function reducer(state, action) {
     };
   }
 
+  if (action.type === "set_ships_arrangement") {
+    const { player, shipsArrangement } = action;
+    return {
+      ...state,
+      [player]: {
+        ...state[player],
+        ships: shipsArrangement,
+      },
+    };
+  }
+
   throw new Error(`Unknown action type: ${action.type}`);
 };
 
 function censorEnemyState(enemyState) {
   const { ships, hits } = enemyState;
-  const enemyTable = getTableOutOfArrangementsAndHits(ships);
-  const hitsWithRevealedCells = hits.map((hit) => ({
-    ...hit,
-    cellValue: hitVersionOfCellValue(enemyTable[hit.i][hit.j]),
-  }));
+  if (!ships) {
+    return { ships: null, hits: [] };
+  }
+
+  const enemyTable = getTableOutOfArrangementsAndHits(ships, hits);
+  const hitsWithRevealedCells = [];
+  for (let i = 0; i < 10; i++) {
+    for (let j = 0; j < 10; j++) {
+      const cellValue = enemyTable[i][j];
+      if (isHitOrKilled(cellValue)) {
+        hitsWithRevealedCells.push({ i, j, cellValue: enemyTable[i][j] });
+      }
+    }
+  }
 
   return { hits: hitsWithRevealedCells };
 }
