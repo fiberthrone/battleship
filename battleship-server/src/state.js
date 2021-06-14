@@ -15,8 +15,12 @@ function createDefaultShipArrangement() {
   ];
 }
 
-function nextTurn(player) {
+function enemyOf(player) {
   return player === "player1" ? "player2" : "player1";
+}
+
+function nextTurn(player) {
+  return enemyOf(player);
 }
 
 module.exports.createInitialState = function createInitialState() {
@@ -35,7 +39,12 @@ module.exports.createInitialState = function createInitialState() {
 
 module.exports.reducer = function reducer(state, action) {
   if (action.type === "shot") {
-    const { targetPlayer, i, j } = action;
+    const { player, i, j } = action;
+    if (player !== state.currentTurn) {
+      return state;
+    }
+
+    const targetPlayer = enemyOf(player);
 
     return {
       ...state,
@@ -62,7 +71,7 @@ function censorEnemyState(enemyState) {
 }
 
 module.exports.getPOVState = function getPOVState(state, player) {
-  const enemyPlayer = player === "player1" ? "player2" : "player1";
+  const enemyPlayer = enemyOf(player);
   const enemy = censorEnemyState(state[enemyPlayer]);
   const you = state[player];
   const currentTurn = state.currentTurn;

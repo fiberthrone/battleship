@@ -25,7 +25,7 @@ function BattlefieldTable(props) {
               onClick={
                 props.onCellClick &&
                 (() => {
-                  props.onCellClick(cellValue, i, j);
+                  props.onCellClick(i, j);
                 })
               }
             />
