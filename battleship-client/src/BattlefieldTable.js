@@ -1,5 +1,5 @@
 import cx from "classnames";
-import { EMPTY_HIT, SHIP, SHIP_HIT } from "./constants";
+import { EMPTY_HIT, SHIP, SHIP_HIT } from "battleship-core";
 import "./BattlefieldTable.css";
 
 function BattlefieldTable(props) {

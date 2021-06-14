@@ -2,15 +2,20 @@ import React from "react";
 import ReactDOM from "react-dom";
 import reportWebVitals from "./reportWebVitals";
 import { UIEventsContext } from "./UIEventsContext";
-import { stateObservable, uiEventsSubject } from "./observables";
+import { state$, uiEvents$, yourShots$ } from "./observables";
+import socket from "./socket";
 import App from "./App";
 import "./index.css";
 
+yourShots$.subscribe((uiEvent) => {
+  socket.emit("action", { type: "shot", i: uiEvent.i, j: uiEvent.j });
+});
+
 const rootElement = document.getElementById("root");
-stateObservable.subscribe((state) => {
+state$.subscribe((state) => {
   ReactDOM.render(
     <React.StrictMode>
-      <UIEventsContext.Provider value={uiEventsSubject}>
+      <UIEventsContext.Provider value={uiEvents$}>
         <App {...state} />
       </UIEventsContext.Provider>
     </React.StrictMode>,

@@ -1,38 +1,13 @@
-import { merge, Subject } from "rxjs";
-import { delay, filter, map, scan, startWith } from "rxjs/operators";
-import { EMPTY } from "./constants";
-import { createDefaultShipArrangement } from "./utils";
-import { createInitialState, reducer } from "./state";
+import { fromEvent, Subject } from "rxjs";
+import { concatWith, filter, take } from "rxjs/operators";
+import { EMPTY } from "battleship-core";
+import socket from "./socket";
 
-const enemyMakeMove = (() => {
-  let idx = 0;
-  return () => {
-    const i = Math.floor(idx / 10);
-    const j = idx % 10;
-    ++idx;
+const initialState$ = fromEvent(socket, "initial_state").pipe(take(1));
+const stateUpdates$ = fromEvent(socket, "state_update");
+export const state$ = initialState$.pipe(concatWith(stateUpdates$));
 
-    return { i, j };
-  };
-})();
-
-const initialState = createInitialState();
-const enemyArranegement = createDefaultShipArrangement();
-
-export const uiEventsSubject = new Subject();
-
-export const enemyAnswersObservable = uiEventsSubject.pipe(
-  filter((uiEvent) => uiEvent.type === "enemy_cell_click" && uiEvent.cellValue === EMPTY),
-  map(({ i, j }) => ({ type: "enemy_reveal", cellValue: enemyArranegement[i][j], i, j }))
-);
-
-export const enemyShotsObservable = enemyAnswersObservable.pipe(
-  delay(200),
-  map(() => ({ type: "enemy_shot", ...enemyMakeMove() }))
-);
-
-export const actionsObservable = merge(enemyAnswersObservable, enemyShotsObservable);
-
-export const stateObservable = actionsObservable.pipe(
-  scan((state, action) => reducer(state, action), initialState),
-  startWith(initialState)
+export const uiEvents$ = new Subject();
+export const yourShots$ = uiEvents$.pipe(
+  filter((uiEvent) => uiEvent.type === "enemy_cell_click" && uiEvent.cellValue === EMPTY)
 );
